@@ -6,8 +6,10 @@ Rate评分:可设置星星数，可设置大小颜色，支持手势touch选择
 <template>
 	<view class="tui-rate-class tui-rate-box" @touchmove="touchMove">
 		<block v-for="(item,index) in quantity" :key="index">
-			<view class="tui-icon" :class="['tui-icon-collection'+(hollow && current<=index?'':'-fill')]" :data-index="index"
-			 @tap="handleTap" :style="{fontSize:size+'px',color:current>index?active:normal}"></view>
+			<view class="tui-icon tui-relative" :class="['tui-icon-collection'+(hollow && (current<=index || (disabled && current<=index+1))?'':'-fill')]"
+			 :data-index="index" @tap="handleTap" :style="{fontSize:size+'px',color:(current>index+1 || (!disabled && current>index))?active:normal}">
+				<view class="tui-icon tui-icon-main tui-icon-collection-fill" v-if="disabled && current==index+1" :style="{fontSize:size+'px',color:active,width:percent+'%'}"></view>
+			</view>
 		</block>
 	</view>
 </template>
@@ -28,6 +30,11 @@ Rate评分:可设置星星数，可设置大小颜色，支持手势touch选择
 			current: {
 				type: Number,
 				default: 0
+			},
+			//当前选中星星分数(大于0，小于等于1的数)
+			score: {
+				type: [Number, String],
+				default: 1
 			},
 			//禁用点击
 			disabled: {
@@ -57,8 +64,17 @@ Rate评分:可设置星星数，可设置大小颜色，支持手势touch选择
 		},
 		data() {
 			return {
-				pageX: 0
+				pageX: 0,
+				percent: 0
 			};
+		},
+		created() {
+			this.percent = Number(this.score || 0) * 100
+		},
+		watch: {
+			score(newVal, oldVal) {
+				this.percent = Number(newVal || 0) * 100
+			}
 		},
 		methods: {
 			handleTap(e) {
@@ -79,7 +95,7 @@ Rate评分:可设置星星数，可设置大小颜色，支持手势touch选择
 				}
 				const movePageX = e.changedTouches[0].pageX;
 				const distance = movePageX - this.pageX;
-
+	
 				if (distance <= 0) {
 					return;
 				}
@@ -90,6 +106,16 @@ Rate评分:可设置星星数，可设置大小颜色，支持手势touch选择
 				})
 			}
 		},
+		// #ifdef H5
+		mounted() {
+			const className = '.tui-rate-box';
+			let query = uni.createSelectorQuery().in(this)
+			query.select(className).boundingClientRect((res) => {
+				this.pageX = res.left || 0
+			}).exec()
+		},
+	
+		// #endif
 		onReady() {
 			const className = '.tui-rate-box';
 			let query = uni.createSelectorQuery().in(this)
@@ -113,7 +139,8 @@ Rate评分:可设置星星数，可设置大小颜色，支持手势touch选择
 ``` js
  props: 
 	 "quantity" : 数量,类型:"Number",默认值:5
-	 "current" :  当前选中索引,类型:"Number",默认值:0
+	 "current" :  当前选中星星,类型:"Number",默认值:0
+	 "score" :    当前选中星星分数(大于0，小于等于1的数),类型:"[Number, String]",默认值:1
 	 "disabled" : 是否禁用点击,类型:"Boolean",默认值:false
 	 "size" : 	  星星大小,类型:"Number",默认值:20
 	 "normal" :   未选中颜色,类型:"String",默认值:"#b2b2b2"

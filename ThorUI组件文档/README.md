@@ -5,7 +5,7 @@ actionText: Get Started →
 actionLink: /guide/
 features:
 - title: 开源免费
-  details: 欢迎使用ThorUI！项目免费开源，可学习使用，也可商用
+  details: 欢迎使用ThorUI！项目免费开源，可学习使用，也可商用。ThorUI QQ交流群：881906325 
 - title: 维护更新
   details: 该项目会长期进行维护和更新，不断的完善，希望可以到达高质量高颜值的组件库和模板库。
 - title: Contact me
